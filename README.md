@@ -1,28 +1,30 @@
-# Markdown Editor - Block-Based Editing System
+# Markdown Editor - AST-Based Document System
 
-A high-performance full-stack application for editing large Markdown documents with block-based structure, virtualized rendering, and real-time collaboration features.
+A high-performance full-stack application for editing large Markdown documents (300+ pages) with AST-based architecture, virtualized rendering, and scalable document management designed for millions of documents.
 
 ## 🏗️ Architecture
 
-- **Frontend**: React with TypeScript, virtualized rendering
-- **Backend**: FastAPI with Python, block-based Markdown parsing
-- **Database**: PostgreSQL with optimized schema
+- **Frontend**: React with TypeScript, remark ecosystem for markdown processing
+- **Backend**: FastAPI with Python, markdown-it-py for AST parsing
+- **Database**: PostgreSQL with JSONB storage for AST documents
 - **Infrastructure**: Docker Compose for local development
 
 ## ✨ Features
 
 ### Core Functionality
-- **Block-based Markdown parsing** - Documents are parsed into individual blocks (headings, paragraphs, code blocks, etc.)
-- **Virtualized rendering** - Smooth performance with large documents (1000+ blocks)
-- **Real-time inline editing** - Click-to-edit with debounced auto-save
-- **Interactive Table of Contents** - Navigate large documents with click-to-scroll
-- **Performance optimized** - Initial load < 200ms, updates < 100ms
-- **Export functionality** - Reassemble blocks back to Markdown
+- **AST-based document storage** - Documents stored as single JSON AST structures for optimal scalability
+- **Virtualized rendering** - Smooth performance with massive documents (40,000+ blocks)
+- **Raw markdown editing** - Block-level and full-document raw markdown editing with structural changes
+- **Interactive Table of Contents** - Navigate large documents with hierarchical outline (H1, H2, H3)
+- **Performance optimized** - Handles 945-page documents with 40,505 blocks efficiently
+- **Export functionality** - Markdown and HTML export with proper formatting
 
 ### Advanced Features
-- **AST parsing support** - Optional markdown-it-py integration for rich parsing
+- **Professional markdown libraries** - remark ecosystem (frontend), markdown-it-py (backend)
+- **Rich markdown editor** - @uiw/react-md-editor with WYSIWYG capabilities
+- **Scalable architecture** - Designed for millions of 300+ page documents
 - **Performance monitoring** - Built-in metrics and logging
-- **Integration testing** - Automated tests for performance requirements
+- **Integration testing** - Automated tests for large document performance
 - **Responsive design** - Works on desktop and mobile devices
 
 ## 🚀 Quick Start
@@ -49,9 +51,8 @@ docker-compose logs -f backend
 
 ### 3. Load Sample Data
 ```bash
-# Generate and load sample data
-python scripts/generate_sample_data.py
-python scripts/load_sample_data.py
+# Generate large AST-based sample document (945 pages, 40,505 blocks)
+python backend/generate_ast_sample.py
 ```
 
 ### 4. Access the Application
@@ -65,27 +66,32 @@ python scripts/load_sample_data.py
 markdown_test/
 ├── docker-compose.yml          # Docker orchestration
 ├── backend/                    # FastAPI backend
-│   ├── main.py                # API endpoints
+│   ├── main_ast.py            # AST-based API endpoints
 │   ├── database.py            # Database models and connection
-│   ├── schemas.py             # Pydantic schemas
-│   ├── markdown_parser.py     # Block-based parser
+│   ├── schemas.py             # Pydantic schemas for AST documents
+│   ├── services/              # Business logic services
+│   │   └── document_service.py # AST document operations
+│   ├── generate_ast_sample.py # Large sample document generator
 │   ├── performance_logger.py  # Performance monitoring
 │   ├── requirements.txt       # Python dependencies
 │   └── Dockerfile            # Backend container
 ├── frontend/                  # React frontend
 │   ├── src/
-│   │   ├── App.tsx           # Main application
+│   │   ├── AppAST.tsx        # Main AST-based application
 │   │   ├── components/       # React components
+│   │   │   ├── MarkdownRenderer.tsx # Professional markdown rendering
+│   │   │   ├── MarkdownEditor.tsx   # Rich markdown editor
+│   │   │   └── RawMarkdownEditor.tsx # Full-document raw editor
+│   │   ├── contexts/         # React contexts
+│   │   │   └── DocumentContext.tsx # Document state management
+│   │   ├── services/         # API services
+│   │   │   └── documentService.ts # Document API client
 │   │   └── types.ts          # TypeScript types
-│   ├── package.json          # Node dependencies
+│   ├── package.json          # Node dependencies (remark ecosystem)
 │   └── Dockerfile           # Frontend container
-├── tests/                    # Integration tests
-│   └── test_integration.py  # Performance and functionality tests
 ├── scripts/                 # Utility scripts
-│   ├── generate_sample_data.py  # Sample data generator
-│   └── load_sample_data.py     # Data loader
-└── sample_data/             # Generated sample files
-    └── large_sample.md      # Large test document
+│   └── test_ast_integration.py # AST integration tests
+└── README.md               # This documentation
 ```
 
 ## 🔧 Development
@@ -97,8 +103,8 @@ cd backend
 pip install -r requirements.txt
 
 # Run locally (requires PostgreSQL)
-export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/markdown_editor"
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5433/markdown_editor"
+uvicorn main_ast:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Frontend Development
@@ -124,18 +130,23 @@ docker-compose logs db
 
 ### Run Integration Tests
 ```bash
-# Run all tests
-cd tests
-python -m pytest test_integration.py -v
+# Run AST integration tests
+python scripts/test_ast_integration.py
 
-# Run specific test
-python -m pytest test_integration.py::test_blocks_retrieval_performance -v
+# Tests include:
+# - Document loading and AST parsing
+# - Block virtualization and rendering
+# - Table of contents generation
+# - Search functionality
+# - Export (Markdown and HTML)
+# - Performance benchmarks
 ```
 
 ### Performance Testing
 ```bash
-# Load sample data and run performance tests
-python scripts/load_sample_data.py
+# Generate large sample document and test performance
+python backend/generate_ast_sample.py
+python scripts/test_ast_integration.py
 
 # Check performance metrics
 curl http://localhost:8000/performance/metrics
@@ -143,20 +154,21 @@ curl http://localhost:8000/performance/metrics
 
 ## 📊 API Endpoints
 
-### Documents
+### Documents (AST-based)
 - `GET /documents` - List all documents
-- `POST /documents` - Create a new document
-- `GET /documents/{id}` - Get document details
+- `POST /documents` - Create a new document with AST structure
+- `GET /documents/{id}` - Get document with full AST
+- `PUT /documents/{id}/update-from-markdown` - Update document from raw markdown
 
-### Blocks
-- `GET /blocks?document_id=...&offset=...&limit=...` - Get paginated blocks
-- `GET /blocks/{id}` - Get specific block
-- `PATCH /blocks/{id}` - Update block content
+### Virtual Blocks (for UI rendering)
+- `GET /documents/{id}/blocks?offset=...&limit=...` - Get virtualized blocks from AST
+- `PUT /documents/{id}/blocks/{block_index}` - Update specific AST node via block interface
 
 ### Content Management
-- `POST /documents/{id}/parse` - Parse markdown content into blocks
-- `GET /toc?document_id=...` - Get table of contents
-- `GET /export?document_id=...` - Export blocks to markdown
+- `GET /documents/{id}/outline` - Get hierarchical table of contents from AST
+- `GET /documents/{id}/search?query=...` - Search within document AST
+- `GET /documents/{id}/export/markdown` - Export AST to markdown
+- `GET /documents/{id}/export/html` - Export AST to HTML
 
 ### Performance Monitoring
 - `GET /performance/metrics` - Get performance metrics
@@ -164,43 +176,49 @@ curl http://localhost:8000/performance/metrics
 
 ## ⚡ Performance Requirements
 
-The application is designed to meet strict performance requirements:
+The application is designed to handle massive documents efficiently:
 
-- **Initial Load**: < 200ms for first 100 blocks
-- **Block Updates**: < 100ms for PATCH operations
+- **Large Documents**: Supports 300+ page documents (40,000+ blocks)
+- **Initial Load**: < 2000ms for massive documents (945 pages)
+- **Block Updates**: < 100ms for AST node operations
 - **Smooth Scrolling**: No frame drops during virtualized scrolling
-- **Memory Efficient**: Handles 1000+ blocks without memory issues
+- **Memory Efficient**: Handles 40,000+ blocks without memory issues
+- **Scalability**: Designed for millions of documents
 
 ### Performance Features
-- Virtualized rendering with react-window
-- Debounced auto-save (500ms delay)
-- Optimized database queries with proper indexing
+- AST-based document storage (single JSONB record vs thousands of block records)
+- Virtualized rendering with react-window VariableSizeList
+- Professional markdown libraries (remark, markdown-it-py)
+- Optimized database queries with GIN indexing on JSONB
 - Performance monitoring and logging
-- Efficient block-based parsing
+- Efficient AST parsing and manipulation
 
 ## 🎯 Usage Guide
 
 ### Loading Documents
-1. Start the application with `docker-compose up`
-2. Generate sample data with `python scripts/generate_sample_data.py`
-3. Load data with `python scripts/load_sample_data.py`
-4. Access the frontend at http://localhost:3000
+1. Start the application with `docker-compose up -d`
+2. Generate large sample document with `python backend/generate_ast_sample.py`
+3. Access the frontend at http://localhost:3000
+4. The 945-page document with 40,505 blocks will be automatically loaded
 
 ### Editing Content
-1. Click on any block to start editing
-2. Changes are automatically saved after 500ms
-3. Use Ctrl+Enter to save immediately
-4. Use Escape to cancel editing
+1. **Block-level editing**: Click the edit button (✏️) on any block header
+2. **Raw markdown editing**: Edit the raw markdown content with rich editor
+3. **Full-document editing**: Use the "Raw Edit" button for entire document editing
+4. **Structural changes**: Adding/removing headings automatically updates ToC and hierarchy
+5. Changes are automatically saved with AST re-parsing
 
 ### Navigation
-1. Use the Table of Contents sidebar to navigate
+1. Use the hierarchical Table of Contents sidebar (H1, H2, H3 levels)
 2. Click on any heading to scroll to that section
 3. The current section is highlighted based on scroll position
+4. Search functionality to find content across the document
 
 ### Exporting
-1. Use the API endpoint `GET /export?document_id=...` to get markdown
-2. The export reassembles all blocks in order
-3. Original formatting is preserved where possible
+1. Click the "Export" button in the UI for dropdown menu
+2. Choose "📄 Markdown" for markdown export
+3. Choose "🌐 HTML" for HTML export
+4. Original formatting and structure are preserved
 
 ## 🔍 Troubleshooting
 

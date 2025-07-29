@@ -108,7 +108,7 @@ const RawMarkdownEditor: React.FC<RawMarkdownEditorProps> = ({ onClose }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .raw-markdown-editor-overlay {
           position: fixed;
           top: 0;
