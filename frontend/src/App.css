@@ -1,0 +1,95 @@
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-section label {
+  font-weight: 500;
+  color: #333;
+}
+
+.toolbar-section select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn:hover {
+  background-color: #f5f5f5;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.status {
+  color: #666;
+  font-size: 14px;
+}
+
+.block-edit-hint {
+  margin-top: 4px;
+  color: #666;
+  font-size: 12px;
+}
+
+.block-list-item {
+  font-family: monospace;
+  white-space: pre;
+}
+
+.toc-empty {
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}
+
+.block.active {
+  background-color: #fff3cd;
+  border-color: #ffeaa7;
+}
+
+/* Virtualized list styling */
+.ReactVirtualized__List {
+  outline: none;
+}
+
+.ReactVirtualized__List:focus {
+  outline: none;
+}
+
+.block-code-editor {
+  width: 100%;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.block-code-editor:focus {
+  outline: none;
+  border-color: #007acc;
+}
