@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { FixedSizeList as List } from 'react-window';
+import { VariableSizeList as List } from 'react-window';
 import TableOfContents from './components/TableOfContents';
 import BlockRenderer from './components/BlockRenderer';
 import Toolbar from './components/Toolbar';
@@ -104,12 +104,13 @@ const App: React.FC = () => {
     
     try {
       await axios.patch(`${API_BASE_URL}/blocks/${blockId}`, {
-        content: content
+        content: content,
+        raw_content: content  // Store the raw markdown content as well
       });
-      
+
       // Update local state
-      setBlocks(prev => prev.map(block => 
-        block.id === blockId ? { ...block, content } : block
+      setBlocks(prev => prev.map(block =>
+        block.id === blockId ? { ...block, content, raw_content: content } : block
       ));
       
       const updateTime = performance.now() - startTime;
@@ -246,7 +247,12 @@ const App: React.FC = () => {
             <List
               height={window.innerHeight - 180} // Adjust for toolbar and search
               itemCount={searchTerm ? filteredBlocks.length : blocks.length}
-              itemSize={100} // Estimated item height
+              itemSize={(index) => {
+                const currentBlocks = searchTerm ? filteredBlocks : blocks;
+                const block = currentBlocks[index];
+                // Use larger size for editing blocks to prevent overlap
+                return editingBlockId === block?.id ? 300 : 150;
+              }}
               width="100%"
               onItemsRendered={handleItemsRendered}
             >

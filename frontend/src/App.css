@@ -153,11 +153,23 @@
 .markdown-content {
   line-height: 1.6;
   color: #333;
+  /* Reset margins to prevent overlap between blocks */
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset all markdown element margins to prevent overlap */
+.markdown-content > *:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-content > *:last-child {
+  margin-bottom: 0 !important;
 }
 
 .markdown-h1, .markdown-h2, .markdown-h3,
 .markdown-h4, .markdown-h5, .markdown-h6 {
-  margin: 1em 0 0.5em 0;
+  margin: 0.5em 0 0.3em 0;
   font-weight: 600;
   line-height: 1.25;
 }
@@ -170,7 +182,7 @@
 .markdown-h6 { font-size: 0.85em; color: #6a737d; }
 
 .markdown-p {
-  margin: 0 0 1em 0;
+  margin: 0.5em 0;
 }
 
 .markdown-code-block {
@@ -291,12 +303,16 @@
 
 /* Block Styles */
 .block {
-  margin: 8px 0;
-  padding: 12px;
+  margin: 16px 0;  /* Increased margin to prevent overlap */
+  padding: 16px;   /* Increased padding for better spacing */
   border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  /* Ensure blocks don't overlap */
+  position: relative;
+  background-color: white;
+  box-sizing: border-box;
 }
 
 .block:hover {
@@ -312,8 +328,54 @@
 .block.editing {
   border-color: #1976d2;
   cursor: default;
+  background-color: white;
+  /* Ensure editing blocks have proper spacing */
+  margin: 24px 0;
+  padding: 20px;
+  /* Ensure editing block doesn't overlap with others */
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .block.editing:hover {
   background-color: white;
+}
+
+/* Ensure proper spacing within blocks */
+.block .markdown-content {
+  overflow: hidden;  /* Prevent content overflow */
+}
+
+/* Additional spacing fixes for react-markdown elements */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin: 0.5em 0 0.3em 0 !important;
+}
+
+.markdown-content p {
+  margin: 0.5em 0 !important;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 0.5em 0 !important;
+  padding-left: 1.5em;
+}
+
+.markdown-content li {
+  margin: 0.2em 0 !important;
+}
+
+.markdown-content pre {
+  margin: 1em 0 !important;
+}
+
+.markdown-content blockquote {
+  margin: 1em 0 !important;
+  padding-left: 1em;
+  border-left: 4px solid #dfe2e5;
 }
