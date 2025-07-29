@@ -18,6 +18,8 @@ const App: React.FC = () => {
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [visibleBlocks, setVisibleBlocks] = useState<Set<number>>(new Set());
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
 
   // Load documents on mount
   useEffect(() => {
@@ -31,6 +33,19 @@ const App: React.FC = () => {
       loadTOC();
     }
   }, [selectedDocument]);
+
+  // Filter blocks based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredBlocks(blocks);
+    } else {
+      const filtered = blocks.filter(block =>
+        block.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        block.raw_content?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredBlocks(filtered);
+    }
+  }, [blocks, searchTerm]);
 
   const loadDocuments = async () => {
     try {
@@ -139,8 +154,34 @@ const App: React.FC = () => {
     setVisibleBlocks(newVisibleBlocks);
   }, []);
 
+  const exportMarkdown = async () => {
+    if (!selectedDocument) return;
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/export`, {
+        params: { document_id: selectedDocument }
+      });
+
+      // Create and download file
+      const blob = new Blob([response.data.markdown], { type: 'text/markdown' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${documents.find(d => d.id === selectedDocument)?.title || 'document'}.md`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      console.log(`Exported ${response.data.total_blocks} blocks in ${response.data.export_time_ms}ms`);
+    } catch (error) {
+      console.error('Failed to export markdown:', error);
+    }
+  };
+
   const renderBlock = ({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const block = blocks[index];
+    const displayBlocks = searchTerm ? filteredBlocks : blocks;
+    const block = displayBlocks[index];
     if (!block) return null;
 
     return (
@@ -180,21 +221,39 @@ const App: React.FC = () => {
             loadBlocks();
             loadTOC();
           }}
+          onExport={exportMarkdown}
         />
+
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search blocks..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          {searchTerm && (
+            <span className="search-results">
+              {filteredBlocks.length} of {blocks.length} blocks
+            </span>
+          )}
+        </div>
         
         <div className="editor-container">
           {loading ? (
             <div>Loading blocks...</div>
-          ) : blocks.length > 0 ? (
+          ) : (searchTerm ? filteredBlocks : blocks).length > 0 ? (
             <List
-              height={window.innerHeight - 120} // Adjust for toolbar
-              itemCount={blocks.length}
+              height={window.innerHeight - 180} // Adjust for toolbar and search
+              itemCount={searchTerm ? filteredBlocks.length : blocks.length}
               itemSize={100} // Estimated item height
               width="100%"
               onItemsRendered={handleItemsRendered}
             >
               {renderBlock}
             </List>
+          ) : searchTerm ? (
+            <div>No blocks found matching "{searchTerm}". Try a different search term.</div>
           ) : (
             <div>No blocks found. Please select a document or upload markdown content.</div>
           )}

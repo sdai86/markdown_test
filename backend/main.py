@@ -3,6 +3,7 @@ import logging
 from typing import List, Optional
 from uuid import UUID
 from fastapi import FastAPI, Depends, HTTPException, Query
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -19,6 +20,10 @@ from performance_logger import perf_logger, measure_time, PerformanceMiddleware
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Request models
+class ParseMarkdownRequest(BaseModel):
+    markdown_content: str
 
 app = FastAPI(title="Markdown Editor API", version="1.0.0")
 
@@ -174,7 +179,7 @@ async def export_markdown(
             raw_content=block.raw_content or block.content,
             level=block.level,
             order_index=block.order_index,
-            metadata=block.metadata or {}
+            metadata=block.block_metadata or {}
         )
         for block in blocks
     ]
@@ -205,7 +210,7 @@ async def create_document(
 @app.post("/documents/{document_id}/parse")
 async def parse_markdown_file(
     document_id: UUID,
-    markdown_content: str,
+    request: ParseMarkdownRequest,
     use_ast: bool = Query(False),
     db: Session = Depends(get_db)
 ):
@@ -222,7 +227,7 @@ async def parse_markdown_file(
 
     # Parse markdown
     parser.use_ast = use_ast
-    parsed_blocks, parse_stats = parser.parse_markdown(markdown_content)
+    parsed_blocks, parse_stats = parser.parse_markdown(request.markdown_content)
 
     # Store blocks in database
     db_blocks = []
@@ -234,7 +239,7 @@ async def parse_markdown_file(
             order_index=parsed_block.order_index,
             level=parsed_block.level,
             document_id=document_id,
-            metadata=parsed_block.metadata
+            block_metadata=parsed_block.metadata
         )
         db_blocks.append(db_block)
 

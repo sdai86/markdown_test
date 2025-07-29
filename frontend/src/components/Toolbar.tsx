@@ -6,13 +6,15 @@ interface ToolbarProps {
   selectedDocument: string | null;
   onDocumentChange: (documentId: string) => void;
   onRefresh: () => void;
+  onExport: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
   documents,
   selectedDocument,
   onDocumentChange,
-  onRefresh
+  onRefresh,
+  onExport
 }) => {
   return (
     <div className="toolbar">
@@ -35,6 +37,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
       <div className="toolbar-section">
         <button onClick={onRefresh} className="btn btn-secondary">
           Refresh
+        </button>
+        <button
+          onClick={onExport}
+          className="btn btn-primary"
+          disabled={!selectedDocument}
+        >
+          Export Markdown
         </button>
       </div>
       
