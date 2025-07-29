@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import debounce from 'lodash.debounce';
+import React, { useState, useEffect } from 'react';
 import { Block } from '../types';
+import MarkdownRenderer from './MarkdownRenderer';
+import MarkdownEditor from './MarkdownEditor';
 
 interface BlockRendererProps {
   block: Block;
@@ -19,143 +20,58 @@ const BlockRenderer: React.FC<BlockRendererProps> = ({
   onSave,
   onCancel
 }) => {
-  const [editContent, setEditContent] = useState(block.content);
-  const editRef = useRef<HTMLDivElement>(null);
+  const [editContent, setEditContent] = useState(block.raw_content || block.content);
 
   // Update edit content when block changes
   useEffect(() => {
-    setEditContent(block.content);
-  }, [block.content]);
+    setEditContent(block.raw_content || block.content);
+  }, [block.content, block.raw_content]);
 
-  // Focus on edit element when editing starts
-  useEffect(() => {
-    if (isEditing && editRef.current) {
-      editRef.current.focus();
-      // Place cursor at end
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(editRef.current);
-      range.collapse(false);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-    }
-  }, [isEditing]);
+  const handleSave = () => {
+    onSave(editContent);
+  };
 
-  // Debounced save function
-  const debouncedSave = debounce((content: string) => {
-    if (content !== block.content) {
-      onSave(content);
-    }
-  }, 500);
+  const handleCancel = () => {
+    setEditContent(block.raw_content || block.content);
+    onCancel();
+  };
 
   const handleContentChange = (content: string) => {
     setEditContent(content);
-    debouncedSave(content);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      e.preventDefault();
-      onSave(editContent);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setEditContent(block.content);
-      onCancel();
-    }
-  };
+  if (isEditing) {
+    return (
+      <div
+        className={`block editing ${isActive ? 'active' : ''}`}
+        data-block-id={block.id}
+        data-order-index={block.order_index}
+      >
+        <MarkdownEditor
+          value={editContent}
+          onChange={handleContentChange}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          height={Math.max(150, editContent.split('\n').length * 20 + 100)}
+        />
+      </div>
+    );
+  }
 
-  const renderEditableContent = () => {
-    switch (block.type) {
-      case 'code':
-        return (
-          <textarea
-            ref={editRef as any}
-            className="block-code-editor"
-            value={editContent}
-            onChange={(e) => handleContentChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onBlur={() => onSave(editContent)}
-            rows={editContent.split('\n').length + 1}
-          />
-        );
-
-      default:
-        return (
-          <div
-            ref={editRef}
-            className="block-content"
-            contentEditable
-            suppressContentEditableWarning
-            onInput={(e) => handleContentChange(e.currentTarget.textContent || '')}
-            onKeyDown={handleKeyDown}
-            onBlur={() => onSave(editContent)}
-          >
-            {editContent}
-          </div>
-        );
-    }
-  };
-
-  const renderContent = () => {
-    if (isEditing) {
-      return renderEditableContent();
-    }
-
-    switch (block.type) {
-      case 'heading':
-        const HeadingTag = `h${Math.min(block.level, 6)}` as keyof JSX.IntrinsicElements;
-        return (
-          <HeadingTag className={`block-heading level-${block.level}`}>
-            {block.content}
-          </HeadingTag>
-        );
-
-      case 'code':
-        return (
-          <pre className="block-code">
-            <code>{block.content}</code>
-          </pre>
-        );
-
-      case 'blockquote':
-        return (
-          <blockquote className="block-blockquote">
-            {block.content}
-          </blockquote>
-        );
-
-      case 'list_item':
-        const indent = '  '.repeat(block.level);
-        const marker = block.metadata?.list_type === 'ordered' ? '1.' : '•';
-        return (
-          <div className="block-list-item">
-            {indent}{marker} {block.content}
-          </div>
-        );
-
-      case 'paragraph':
-      default:
-        return (
-          <p className="block-paragraph">
-            {block.content}
-          </p>
-        );
-    }
-  };
+  // For display, use the raw_content if available (original markdown), otherwise use content
+  const displayContent = block.raw_content || block.content;
 
   return (
     <div
-      className={`block ${isEditing ? 'editing' : ''} ${isActive ? 'active' : ''}`}
-      onClick={!isEditing ? onEdit : undefined}
+      className={`block ${isActive ? 'active' : ''}`}
+      onClick={onEdit}
       data-block-id={block.id}
       data-order-index={block.order_index}
     >
-      {renderContent()}
-      {isEditing && (
-        <div className="block-edit-hint">
-          <small>Ctrl+Enter to save, Escape to cancel</small>
-        </div>
-      )}
+      <MarkdownRenderer
+        content={displayContent}
+        className={`block-type-${block.type}`}
+      />
     </div>
   );
 };
