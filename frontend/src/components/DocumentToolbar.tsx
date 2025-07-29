@@ -11,6 +11,7 @@ interface DocumentToolbarProps {
   onSearch: (term: string) => void;
   onSave: () => Promise<void>;
   onToggleOutline: () => void;
+  onRawEdit: () => void;
   showOutline: boolean;
   isDirty: boolean;
   lastSaved: Date | null;
@@ -21,6 +22,7 @@ const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
   onSearch,
   onSave,
   onToggleOutline,
+  onRawEdit,
   showOutline,
   isDirty,
   lastSaved,
@@ -85,6 +87,14 @@ const DocumentToolbar: React.FC<DocumentToolbarProps> = ({
           title="Toggle outline"
         >
           📋 Outline
+        </button>
+
+        <button
+          className="toolbar-btn"
+          onClick={onRawEdit}
+          title="Edit raw markdown"
+        >
+          📝 Raw Edit
         </button>
         
         <div className="search-container">

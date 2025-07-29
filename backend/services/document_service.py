@@ -9,6 +9,7 @@ from sqlalchemy import desc
 from database import Document
 from services.ast_service import ASTService
 import uuid
+from datetime import datetime
 
 
 class DocumentService:
@@ -339,3 +340,29 @@ class DocumentService:
             context = context + "..."
         
         return context
+
+    async def update_document_from_markdown(self, db: Session, document_id: str, markdown: str) -> Optional[Document]:
+        """Update entire document from raw markdown content."""
+        try:
+            # Get existing document
+            document = db.query(Document).filter(Document.id == document_id).first()
+            if not document:
+                return None
+
+            # Parse new markdown to AST
+            content_ast = self.ast_service.parse_markdown_to_ast(markdown)
+
+            # Update document
+            document.content_ast = content_ast
+            document.raw_markdown = markdown
+            document.doc_metadata = content_ast.get('metadata', {})
+            document.updated_at = datetime.utcnow()
+
+            db.commit()
+            db.refresh(document)
+
+            return document
+
+        except Exception as e:
+            db.rollback()
+            raise e

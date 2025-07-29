@@ -12,8 +12,9 @@ import { VirtualBlock } from './services/documentService';
 import ASTBlockRenderer from './components/ASTBlockRenderer';
 import DocumentOutline from './components/DocumentOutline';
 import DocumentToolbar from './components/DocumentToolbar';
+import RawMarkdownEditor from './components/RawMarkdownEditor';
 
-const SAMPLE_DOCUMENT_ID = '550e8400-e29b-41d4-a716-446655440000'; // Use existing sample document
+const SAMPLE_DOCUMENT_ID = '550e8400-e29b-41d4-a716-446655440001'; // Large 945-page document
 
 const DocumentEditor: React.FC = () => {
   const { 
@@ -26,6 +27,7 @@ const DocumentEditor: React.FC = () => {
   } = useDocument();
 
   const [showOutline, setShowOutline] = useState(true);
+  const [showRawEditor, setShowRawEditor] = useState(false);
   const [performanceMetrics, setPerformanceMetrics] = useState<{
     loadTime: number;
     renderTime: number;
@@ -228,6 +230,7 @@ const DocumentEditor: React.FC = () => {
         onSearch={handleSearch}
         onSave={saveDocument}
         onToggleOutline={() => setShowOutline(!showOutline)}
+        onRawEdit={() => setShowRawEditor(true)}
         showOutline={showOutline}
         isDirty={state.isDirty}
         lastSaved={state.lastSaved}
@@ -291,6 +294,11 @@ const DocumentEditor: React.FC = () => {
             Blocks: {performanceMetrics.blockCount || 0}
           </small>
         </div>
+      )}
+
+      {/* Raw Markdown Editor */}
+      {showRawEditor && (
+        <RawMarkdownEditor onClose={() => setShowRawEditor(false)} />
       )}
     </div>
   );

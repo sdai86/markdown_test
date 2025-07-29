@@ -339,6 +339,18 @@ class DocumentService {
     extractHeadings(ast.children);
     return outline;
   }
+
+  async updateDocumentFromMarkdown(documentId: string, markdown: string): Promise<Document> {
+    try {
+      const response = await this.api.post(`/documents/${documentId}/update-from-markdown`, {
+        markdown
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update document from markdown:', error);
+      throw error;
+    }
+  }
 }
 
 export const documentService = new DocumentService();

@@ -254,6 +254,36 @@ async def update_ast_node(
         logger.error(f"Error updating node {node_id} in document {document_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/documents/{document_id}/update-from-markdown", response_model=DocumentResponse)
+async def update_document_from_markdown(
+    document_id: str,
+    request: dict,
+    db: Session = Depends(get_db)
+):
+    """Update entire document from raw markdown content."""
+    try:
+        markdown = request.get("markdown", "")
+        if not markdown:
+            raise HTTPException(status_code=400, detail="Markdown content is required")
+
+        document = await document_service.update_document_from_markdown(db, document_id, markdown)
+
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        return DocumentResponse(
+            id=str(document.id),
+            title=document.title,
+            content_ast=document.content_ast,
+            raw_markdown=document.raw_markdown,
+            metadata=document.doc_metadata,
+            created_at=document.created_at.isoformat(),
+            updated_at=document.updated_at.isoformat()
+        )
+    except Exception as e:
+        logger.error(f"Failed to update document from markdown: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Document rendering endpoints
 @app.get("/documents/{document_id}/blocks", response_model=DocumentBlocksResponse)
 async def get_document_blocks(

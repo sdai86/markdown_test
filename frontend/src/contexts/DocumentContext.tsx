@@ -147,6 +147,7 @@ interface DocumentContextType {
   setSearchTerm: (term: string) => void;
   insertNode: (afterNodeId: string, nodeType: string, content: string) => Promise<void>;
   deleteNode: (nodeId: string) => Promise<void>;
+  updateDocumentFromMarkdown: (documentId: string, markdown: string) => Promise<void>;
   exportDocument: (format?: 'markdown' | 'html') => Promise<string>;
   searchDocument: (query: string) => Promise<any>;
 }
@@ -334,9 +335,30 @@ export const DocumentProvider: React.FC<DocumentProviderProps> = ({ children }) 
     return await documentService.exportDocument(state.document.id, format);
   }, [state.document]);
 
+  const updateDocumentFromMarkdown = useCallback(async (documentId: string, markdown: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      // Update document with new markdown content
+      const response = await documentService.updateDocumentFromMarkdown(documentId, markdown);
+
+      // Reload the document to get updated AST and blocks
+      await loadDocument(documentId);
+
+      dispatch({ type: 'SET_DIRTY', payload: false });
+      dispatch({ type: 'SET_LAST_SAVED', payload: new Date() });
+    } catch (error) {
+      console.error('Failed to update document from markdown:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to update document from markdown' });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [loadDocument]);
+
   const searchDocument = useCallback(async (query: string) => {
     if (!state.document) throw new Error('No document loaded');
-    
+
     return await documentService.searchDocument(state.document.id, query);
   }, [state.document]);
 
@@ -349,6 +371,7 @@ export const DocumentProvider: React.FC<DocumentProviderProps> = ({ children }) 
     setSearchTerm,
     insertNode,
     deleteNode,
+    updateDocumentFromMarkdown,
     exportDocument,
     searchDocument,
   };
