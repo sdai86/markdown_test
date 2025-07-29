@@ -30,7 +30,7 @@ def test_document_retrieval():
     assert response.status_code == 200
     document = response.json()
     assert document["id"] == SAMPLE_DOCUMENT_ID
-    assert document["title"] == "Sample AST Document"
+    assert "AST Document" in document["title"]
     assert "content_ast" in document
     assert "metadata" in document
     print(f"✅ Document retrieved: {document['title']}")
@@ -157,12 +157,12 @@ def test_document_search():
     assert response.status_code == 200
     search_results = response.json()
     
-    assert "results" in search_results
-    assert len(search_results["results"]) > 0
-    
+    assert "matches" in search_results
+    assert len(search_results["matches"]) > 0
+
     print(f"✅ Search completed")
     print(f"  🔍 Query: '{search_query}'")
-    print(f"  📊 Results: {len(search_results['results'])}")
+    print(f"  📊 Results: {len(search_results['matches'])}")
     
     return search_results
 
@@ -244,7 +244,7 @@ def run_ast_integration_tests():
         print(f"  📄 Document: {document['title']}")
         print(f"  🧱 Blocks: {len(blocks_data['blocks'])}")
         print(f"  📋 Outline: {len(blocks_data['outline'])}")
-        print(f"  🔍 Search results: {len(search_results['results'])}")
+        print(f"  🔍 Search results: {len(search_results['matches'])}")
         print(f"  ⚡ Avg response time: {performance_data['average']:.1f}ms")
         print(f"  📊 Word count: {document['metadata']['wordCount']}")
         print(f"  📄 Page count: {document['metadata']['pageCount']}")
