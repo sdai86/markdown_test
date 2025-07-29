@@ -37,11 +37,11 @@ def generate_large_markdown_file(output_path: str, target_blocks: int = 1200):
     ])
     block_count += 10
     
-    # Generate chapters
-    chapters = [
+    # Generate chapters - expanded list for larger documents
+    base_chapters = [
         "Software Development Lifecycle",
         "Programming Languages and Paradigms",
-        "Database Design and Management", 
+        "Database Design and Management",
         "Web Development Technologies",
         "DevOps and Deployment",
         "Testing and Quality Assurance",
@@ -52,6 +52,15 @@ def generate_large_markdown_file(output_path: str, target_blocks: int = 1200):
         "Documentation and Communication",
         "Career Development"
     ]
+
+    # Expand chapters by adding variations and advanced topics
+    chapters = []
+    for base_chapter in base_chapters:
+        chapters.append(base_chapter)
+        chapters.append(f"Advanced {base_chapter}")
+        chapters.append(f"Modern {base_chapter}")
+        chapters.append(f"{base_chapter} Best Practices")
+        chapters.append(f"{base_chapter} Case Studies")
     
     for chapter_num, chapter_title in enumerate(chapters, 1):
         if block_count >= target_blocks:
@@ -67,7 +76,7 @@ def generate_large_markdown_file(output_path: str, target_blocks: int = 1200):
         block_count += 3
         
         # Generate sections within each chapter
-        for section_num in range(1, 8):  # 7 sections per chapter
+        for section_num in range(1, 12):  # 11 sections per chapter
             if block_count >= target_blocks:
                 break
                 
@@ -79,7 +88,7 @@ def generate_large_markdown_file(output_path: str, target_blocks: int = 1200):
             block_count += 1
             
             # Generate subsections
-            for subsection_num in range(1, 5):  # 4 subsections per section
+            for subsection_num in range(1, 7):  # 6 subsections per section
                 if block_count >= target_blocks:
                     break
                     
@@ -91,7 +100,7 @@ def generate_large_markdown_file(output_path: str, target_blocks: int = 1200):
                 block_count += 1
                 
                 # Generate content blocks
-                content_blocks = random.randint(3, 8)
+                content_blocks = random.randint(8, 15)
                 for _ in range(content_blocks):
                     if block_count >= target_blocks:
                         break

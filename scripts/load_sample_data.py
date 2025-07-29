@@ -66,8 +66,10 @@ def load_markdown_file(document_id: str, file_path: str, use_ast: bool = False):
     response = requests.post(
         f"{API_BASE_URL}/documents/{document_id}/parse",
         params={
-            "markdown_content": content,
             "use_ast": use_ast
+        },
+        json={
+            "markdown_content": content
         }
     )
     
