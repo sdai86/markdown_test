@@ -38,7 +38,7 @@ class Block(Base):
     level = Column(Integer, default=0)
     parent_id = Column(UUID(as_uuid=True), ForeignKey("blocks.id"))
     document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False)
-    metadata = Column(JSON, default={})
+    block_metadata = Column(JSON, default={})
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

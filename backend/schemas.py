@@ -10,7 +10,7 @@ class BlockBase(BaseModel):
     order_index: int
     level: int = 0
     parent_id: Optional[UUID] = None
-    metadata: Dict[str, Any] = {}
+    block_metadata: Dict[str, Any] = {}
 
 class BlockCreate(BlockBase):
     document_id: UUID
@@ -20,7 +20,7 @@ class BlockUpdate(BaseModel):
     raw_content: Optional[str] = None
     type: Optional[str] = None
     level: Optional[int] = None
-    metadata: Optional[Dict[str, Any]] = None
+    block_metadata: Optional[Dict[str, Any]] = None
 
 class Block(BlockBase):
     id: UUID
