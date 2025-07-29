@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { VariableSizeList as List } from 'react-window';
 import TableOfContents from './components/TableOfContents';
@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [visibleBlocks, setVisibleBlocks] = useState<Set<number>>(new Set());
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
+  const listRef = useRef<any>(null);
 
   // Load documents on mount
   useEffect(() => {
@@ -46,6 +47,13 @@ const App: React.FC = () => {
       setFilteredBlocks(filtered);
     }
   }, [blocks, searchTerm]);
+
+  // Reset list cache when editing state changes
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.resetAfterIndex(0);
+    }
+  }, [editingBlockId]);
 
   const loadDocuments = async () => {
     try {
@@ -245,6 +253,7 @@ const App: React.FC = () => {
             <div>Loading blocks...</div>
           ) : (searchTerm ? filteredBlocks : blocks).length > 0 ? (
             <List
+              ref={listRef}
               height={window.innerHeight - 180} // Adjust for toolbar and search
               itemCount={searchTerm ? filteredBlocks.length : blocks.length}
               itemSize={(index) => {
